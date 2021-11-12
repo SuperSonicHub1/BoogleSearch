@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Boogle Search</title>
+    <style>
+        .sr-only {
+            position: absolute;
+            left: -10000px;
+            width: 1px;
+            height: 1px;
+            top: auto;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Boogle Search</h1>
+    </header>
+	<main>
+        <form action="https://google.com/search" method="get">
+            <label for="search-bar" class="sr-only">Try the typeahead: </label>
+            <input type="search" id="search-bar" name="q" list="autocomplete" placeholder="hello world">
+            <button type="submit" id="search-button">Search!</button>
+            <datalist id="autocomplete"></datalist>
+        </form>
+    </main>
+    <footer>
+        Made by
+        <a href="https://github.com/SuperSonicHub1/">Kyle Williams</a>
+        <!-- - -->
+        <!-- <a href="https://github.com/SuperSonicHub1/vanilla-js-typeahead">GitHub</a> -->
+    </footer>
+    <script>
+        /**
+         * Removes all children nodes of a parent node. Used to clear all <option>s from a <datalist>.
+         * @param {Node} parent - Node to target
+         * @see {@link https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/|Origin of function}
+         */
+        function removeAllChildNodes(parent) {
+            while (parent.firstChild) {
+                parent.removeChild(parent.firstChild)
+            }
+        }
+
+        // Elements needed
+        const search_box = document.getElementById("search-bar")
+        const datalist = document.getElementById("autocomplete")
+        
+        /**
+         * Where the magic happens
+         * @param {Event} e
+         */
+        async function handleChange(e) {
+            const query = e.target.value
+            const res = await fetch(`/autocomplete?q=${encodeURIComponent(query)}`)
+            body = await res.json()
+            removeAllChildNodes(datalist)
+            for (const {result, subtext, image} of body) {
+                const option = new Option(subtext, result)
+                datalist.appendChild(option)
+            }
+        }
+        
+        // Need to use 'input' in order to track changes while user is typing
+        search_box.addEventListener('input', handleChange)
+    </script>
+</body>
+</html>
